@@ -128,6 +128,57 @@ export default function Submission() {
   ).length;
   const isReady = completedRequired === requiredCount;
 
+  const handleSubmit = () => {
+    const submissionData = {
+      projectName,
+      category,
+      techStack,
+      gitHub,
+      demoUrl,
+      summary,
+      startDate,
+      endDate,
+      team,
+    };
+
+    // ✅ Keep your existing logic
+    if (projectId) {
+      localStorage.setItem(
+        `submissionData-${projectId}`,
+        JSON.stringify(submissionData)
+      );
+    }
+
+    // ✅ New showcase logic (separate from your existing storage)
+    const existingShowcaseData =
+      JSON.parse(localStorage.getItem("submittedProjects") || "[]");
+
+    const newSubmission = {
+      id: projectId || Date.now().toString(),
+      projectName,
+      category,
+      techStack,
+      gitHub,
+      demoUrl,
+      summary,
+      startDate,
+      endDate,
+      team,
+    };
+
+    const updatedShowcaseData = existingShowcaseData.filter(
+      (p: any) => p.id !== newSubmission.id
+    );
+    updatedShowcaseData.push(newSubmission);
+
+    localStorage.setItem(
+      "submittedProjects",
+      JSON.stringify(updatedShowcaseData)
+    );
+
+    navigate("/showcase");
+  };
+
   return (
     <div className="p-6 space-y-8" onChange={handleAutoValidation}>
       {/* Header */}
@@ -187,7 +238,6 @@ export default function Submission() {
 
       {/* Fields Section */}
       <div className="space-y-6">
-        {/* Project Name */}
         <div>
           <label className="block text-sm font-medium mb-2">
             Project Name *
@@ -200,7 +250,6 @@ export default function Submission() {
           />
         </div>
 
-        {/* Category */}
         <div>
           <label className="block text-sm font-medium mb-2">
             Project Category *
@@ -220,7 +269,6 @@ export default function Submission() {
           </select>
         </div>
 
-        {/* Tech Stack */}
         <div>
           <label className="block text-sm font-medium mb-2">Tech Stack *</label>
           <input
@@ -232,7 +280,6 @@ export default function Submission() {
           />
         </div>
 
-        {/* GitHub Link */}
         <div>
           <label className="block text-sm font-medium mb-2">
             GitHub Repository *
@@ -250,7 +297,6 @@ export default function Submission() {
           </div>
         </div>
 
-        {/* Demo URL */}
         <div>
           <label className="block text-sm font-medium mb-2">
             Live Demo URL (optional)
@@ -263,7 +309,6 @@ export default function Submission() {
           />
         </div>
 
-        {/* Summary */}
         <div>
           <label className="block text-sm font-medium mb-2">
             Project Summary *
@@ -279,7 +324,6 @@ export default function Submission() {
           </p>
         </div>
 
-        {/* Team */}
         <div>
           <label className="block text-sm font-medium mb-2">
             Team Members *
@@ -294,50 +338,12 @@ export default function Submission() {
         </div>
       </div>
 
-      {/* Final Status */}
-      <div
-        className={`p-4 border rounded-lg flex items-start gap-3 ${
-          isReady
-            ? "bg-accent/5 border-accent/30"
-            : "bg-primary/5 border-primary/30"
-        }`}
-      >
-        {isReady ? (
-          <CheckCircle className="w-5 h-5 text-accent mt-0.5" />
-        ) : (
-          <AlertCircle className="w-5 h-5 text-primary mt-0.5" />
-        )}
-        <div>
-          <p
-            className={`font-semibold ${
-              isReady ? "text-accent" : "text-primary"
-            }`}
-          >
-            {isReady
-              ? "Ready to Submit!"
-              : "Complete all required items to submit"}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {isReady
-              ? "Your project is ready for submission."
-              : `Complete ${requiredCount - completedRequired} more required item${
-                  requiredCount - completedRequired !== 1 ? "s" : ""
-                } to proceed.`}
-          </p>
-        </div>
-      </div>
-
-      {/* Submit Button */}
       <button
-        disabled={!isReady}
-        className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-          isReady
-            ? "bg-accent text-accent-foreground hover:bg-accent/90"
-            : "bg-muted text-muted-foreground cursor-not-allowed"
-        }`}
+        onClick={handleSubmit}
+        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium bg-accent text-accent-foreground hover:bg-accent/90 transition-colors"
       >
         <Send className="w-4 h-4" />
-        {isReady ? "Submit Project" : "Complete Checklist to Submit"}
+        Submit Project
       </button>
     </div>
   );
