@@ -20,7 +20,7 @@ const menuItems = [
   { label: "Ideas", icon: Lightbulb, path: "/ideas" },
   { label: "Resources", icon: BookOpen, path: "/resources" },
   { label: "Tasks", icon: CheckSquare, path: "/tasks" },
-  { label: "Submission", icon: Send, path: "/submission" },
+  // { label: "Submission", icon: Send, path: "/submission" },
   { label: "Showcase", icon: Presentation, path: "/showcase" },
   { label: "Projects", icon: Projector, path: "/projects" },
 ];
@@ -28,8 +28,13 @@ const menuItems = [
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const [showModal, setShowModal] = useState(false);
+
+  // ✅ Form fields
   const [projectName, setProjectName] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
+  const [problemItSolves, setProblemItSolves] = useState("");
+  const [challengesFaced, setChallengesFaced] = useState("");
+  const [technologiesUsed, setTechnologiesUsed] = useState("");
   const [projectCategory, setProjectCategory] = useState("");
 
   const location = useLocation();
@@ -42,20 +47,24 @@ export default function Sidebar() {
       id: Date.now(),
       name: projectName,
       description: projectDesc,
+      problemItSolves,
+      challengesFaced,
+      technologiesUsed,
       category: projectCategory || "Uncategorized",
     };
 
-    // Save to localStorage
     const existing = JSON.parse(localStorage.getItem("projects") || "[]");
     existing.push(newProject);
     localStorage.setItem("projects", JSON.stringify(existing));
 
-    // 🔥 Tell ProjectLists to reload itself
     window.dispatchEvent(new Event("projectsUpdated"));
 
-    // Clear form and close modal
+    // Clear form + close modal
     setProjectName("");
     setProjectDesc("");
+    setProblemItSolves("");
+    setChallengesFaced("");
+    setTechnologiesUsed("");
     setProjectCategory("");
     setShowModal(false);
   }
@@ -149,11 +158,12 @@ export default function Sidebar() {
           onClick={() => setShowModal(false)}
         >
           <div
-            className="bg-background p-6 rounded-lg shadow-lg w-96"
+            className="bg-background p-6 rounded-lg shadow-lg w-96 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold mb-4">Create New Project</h2>
 
+            {/* Project Name */}
             <input
               type="text"
               placeholder="Project Name"
@@ -162,6 +172,7 @@ export default function Sidebar() {
               className="w-full border rounded p-2 mb-3"
             />
 
+            {/* Description */}
             <textarea
               placeholder="Short Description (optional)"
               rows={3}
@@ -170,22 +181,54 @@ export default function Sidebar() {
               className="w-full border rounded p-2 mb-3"
             />
 
+            {/* Problem It Solves */}
+            <textarea
+              placeholder="The problem it solves"
+              rows={3}
+              value={problemItSolves}
+              onChange={(e) => setProblemItSolves(e.target.value)}
+              className="w-full border rounded p-2 mb-3"
+            />
+
+            {/* Challenges Faced */}
+            <textarea
+              placeholder="Challenges faced"
+              rows={3}
+              value={challengesFaced}
+              onChange={(e) => setChallengesFaced(e.target.value)}
+              className="w-full border rounded p-2 mb-3"
+            />
+
+            {/* Technologies Used */}
+            <textarea
+              placeholder="Technologies used"
+              rows={2}
+              value={technologiesUsed}
+              onChange={(e) => setTechnologiesUsed(e.target.value)}
+              className="w-full border rounded p-2 mb-3"
+            />
+
+            {/* Category */}
             <select
               className="w-full border rounded p-2 mb-4"
               value={projectCategory}
               onChange={(e) => setProjectCategory(e.target.value)}
             >
-              <option className="text-black" value="">
-                Select Category
+              <option value="">Select category</option>
+              <option className="text-black" value="Web App">
+                Web App
               </option>
-              <option className="text-black" value="Software">
-                Software
+              <option className="text-black" value="Mobile App">
+                Mobile App
               </option>
-              <option className="text-black" value="Hardware">
-                Hardware
+              <option className="text-black" value="AI/ML">
+                AI / ML
               </option>
-              <option className="text-black" value="Design">
-                Design
+              <option className="text-black" value="IoT">
+                IoT
+              </option>
+              <option className="text-black" value="Blockchain">
+                Blockchain
               </option>
               <option className="text-black" value="Research">
                 Research

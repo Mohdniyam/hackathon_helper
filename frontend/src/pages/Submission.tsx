@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, AlertCircle, Send, LinkIcon } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface SubmissionItem {
   id: string;
@@ -12,19 +13,36 @@ interface SubmissionItem {
 }
 
 export default function Submission() {
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+
   const [items, setItems] = useState<SubmissionItem[]>([
     {
       id: "project-name",
       label: "Project Name",
       description: "Enter your project title",
-      completed: true,
+      completed: false,
+      required: true,
+    },
+    {
+      id: "category",
+      label: "Project Category",
+      description: "Select the project category",
+      completed: false,
+      required: true,
+    },
+    {
+      id: "tech-stack",
+      label: "Technology Stack",
+      description: "List all technologies used (comma separated)",
+      completed: false,
       required: true,
     },
     {
       id: "github",
       label: "GitHub Repository",
       description: "Link to your GitHub repository",
-      completed: true,
+      completed: false,
       required: true,
     },
     {
@@ -32,19 +50,19 @@ export default function Submission() {
       label: "Live Demo URL",
       description: "Link to your deployed project",
       completed: false,
-      required: true,
+      required: false,
     },
     {
       id: "summary",
       label: "Project Summary",
-      description: "50-200 words describing your project",
+      description: "50–200 words describing your project",
       completed: false,
       required: true,
     },
     {
-      id: "video",
-      label: "Demo Video",
-      description: "Link to your demo video (optional)",
+      id: "dates",
+      label: "Project Duration",
+      description: "Select the start and end date of your project",
       completed: false,
       required: false,
     },
@@ -52,21 +70,55 @@ export default function Submission() {
       id: "team",
       label: "Team Members",
       description: "List all team members involved",
-      completed: true,
+      completed: false,
       required: true,
     },
   ]);
 
-  const [projectName, setProjectName] = useState("AI Code Assistant");
-  const [gitHub, setGitHub] = useState("https://github.com/yourrepo/hackathon");
+  // form fields
+  const [projectName, setProjectName] = useState("");
+  const [category, setCategory] = useState("");
+  const [techStack, setTechStack] = useState("");
+  const [gitHub, setGitHub] = useState("");
+  const [demoUrl, setDemoUrl] = useState("");
   const [summary, setSummary] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [team, setTeam] = useState("");
 
-  const toggleItem = (id: string) => {
-    setItems(
-      items.map((item) =>
-        item.id === id ? { ...item, completed: !item.completed } : item
+  useEffect(() => {
+    if (!projectId) return;
+    const saved = localStorage.getItem(`submissionData-${projectId}`);
+    if (saved) {
+      const data = JSON.parse(saved);
+      setProjectName(data.projectName || "");
+      setSummary(data.summary || "");
+      setGitHub(data.github || "");
+      setDemoUrl(data.demoUrl || "");
+      setTeam(data.team || "");
+      setCategory(data.category || "");
+      setTechStack(data.technologiesUsed || "");
+    }
+  }, [projectId]);
+
+  const markComplete = (id: string, condition: boolean) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, completed: condition } : item
       )
     );
+  };
+
+  // Auto-mark fields complete based on input
+  const handleAutoValidation = () => {
+    markComplete("project-name", projectName.trim().length > 2);
+    markComplete("category", category.trim().length > 0);
+    markComplete("tech-stack", techStack.trim().length > 0);
+    markComplete("github", gitHub.startsWith("http"));
+    markComplete("demo-url", demoUrl.startsWith("http"));
+    markComplete("summary", summary.trim().length >= 50);
+    markComplete("dates", startDate !== "" && endDate !== "");
+    markComplete("team", team.trim().length > 0);
   };
 
   const completedCount = items.filter((i) => i.completed).length;
@@ -77,14 +129,14 @@ export default function Submission() {
   const isReady = completedRequired === requiredCount;
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6 space-y-8" onChange={handleAutoValidation}>
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground mb-2">
           Project Submission
         </h1>
         <p className="text-muted-foreground">
-          Complete the checklist to submit your project
+          Complete all fields below to submit your project.
         </p>
       </div>
 
@@ -95,13 +147,11 @@ export default function Submission() {
         </h3>
         <div className="space-y-3">
           <div>
-            <div className="flex justify-between mb-2">
-              <span className="text-sm text-muted-foreground">
+            <div className="flex justify-between mb-2 text-sm">
+              <span>
                 Overall ({completedCount}/{items.length})
               </span>
-              <span className="text-sm font-medium text-foreground">
-                {Math.round((completedCount / items.length) * 100)}%
-              </span>
+              <span>{Math.round((completedCount / items.length) * 100)}%</span>
             </div>
             <div className="w-full bg-muted rounded-full h-2">
               <div
@@ -111,19 +161,21 @@ export default function Submission() {
             </div>
           </div>
           <div>
-            <div className="flex justify-between mb-2">
-              <span className="text-sm text-muted-foreground">
+            <div className="flex justify-between mb-2 text-sm">
+              <span>
                 Required ({completedRequired}/{requiredCount})
               </span>
               <span
-                className={`text-sm font-medium ${isReady ? "text-accent" : "text-muted-foreground"}`}
+                className={isReady ? "text-accent" : "text-muted-foreground"}
               >
                 {isReady ? "Ready to submit" : "Not ready"}
               </span>
             </div>
             <div className="w-full bg-muted rounded-full h-2">
               <div
-                className={`h-2 rounded-full transition-all ${isReady ? "bg-accent" : "bg-muted-foreground"}`}
+                className={`h-2 rounded-full transition-all ${
+                  isReady ? "bg-accent" : "bg-muted-foreground"
+                }`}
                 style={{
                   width: `${(completedRequired / requiredCount) * 100}%`,
                 }}
@@ -133,100 +185,116 @@ export default function Submission() {
         </div>
       </div>
 
-      {/* Submission Form */}
+      {/* Fields Section */}
       <div className="space-y-6">
+        {/* Project Name */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
+          <label className="block text-sm font-medium mb-2">
             Project Name *
           </label>
           <input
             type="text"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full border rounded-lg px-3 py-2 bg-background border-border text-sm"
           />
         </div>
 
+        {/* Category */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
+          <label className="block text-sm font-medium mb-2">
+            Project Category *
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2 bg-background border-border text-sm"
+          >
+            <option value="">Select category</option>
+            <option value="Web App">Web App</option>
+            <option value="Mobile App">Mobile App</option>
+            <option value="AI/ML">AI / ML</option>
+            <option value="IoT">IoT</option>
+            <option value="Blockchain">Blockchain</option>
+            <option value="Research">Research</option>
+          </select>
+        </div>
+
+        {/* Tech Stack */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Tech Stack *</label>
+          <input
+            type="text"
+            value={techStack}
+            onChange={(e) => setTechStack(e.target.value)}
+            placeholder="e.g. React, Node.js, MongoDB"
+            className="w-full border rounded-lg px-3 py-2 bg-background border-border text-sm"
+          />
+        </div>
+
+        {/* GitHub Link */}
+        <div>
+          <label className="block text-sm font-medium mb-2">
             GitHub Repository *
           </label>
           <div className="flex gap-2">
-            <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-background border border-border rounded-lg">
+            <div className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-lg bg-background">
               <LinkIcon className="w-4 h-4 text-muted-foreground" />
               <input
                 type="url"
                 value={gitHub}
                 onChange={(e) => setGitHub(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-foreground placeholder-muted-foreground focus:outline-none"
+                className="flex-1 bg-transparent outline-none text-sm"
               />
             </div>
-            <button className="px-3 py-2 bg-secondary/10 text-secondary rounded-lg text-sm font-medium hover:bg-secondary/20 transition-colors">
-              Verify
-            </button>
           </div>
         </div>
 
+        {/* Demo URL */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
+          <label className="block text-sm font-medium mb-2">
+            Live Demo URL (optional)
+          </label>
+          <input
+            type="url"
+            value={demoUrl}
+            onChange={(e) => setDemoUrl(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2 bg-background border-border text-sm"
+          />
+        </div>
+
+        {/* Summary */}
+        <div>
+          <label className="block text-sm font-medium mb-2">
             Project Summary *
           </label>
           <textarea
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
-            placeholder="Describe your project in 50-200 words..."
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none h-32"
+            className="w-full border rounded-lg px-3 py-2 bg-background border-border text-sm h-32 resize-none"
+            placeholder="Describe your project in 50–200 words..."
           />
           <p className="text-xs text-muted-foreground mt-1">
             {summary.length}/200 characters
           </p>
         </div>
+
+        {/* Team */}
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            Team Members *
+          </label>
+          <input
+            type="text"
+            value={team}
+            onChange={(e) => setTeam(e.target.value)}
+            placeholder="Enter team member names, separated by commas"
+            className="w-full border rounded-lg px-3 py-2 bg-background border-border text-sm"
+          />
+        </div>
       </div>
 
-      {/* Checklist */}
-      <div className="space-y-3">
-        <h2 className="font-semibold text-foreground text-lg">
-          Pre-Submission Checklist
-        </h2>
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className={`p-4 border rounded-lg transition-colors cursor-pointer ${
-              item.completed
-                ? "bg-accent/5 border-accent/30"
-                : "bg-muted/30 border-border hover:border-muted-foreground/30"
-            }`}
-            onClick={() => toggleItem(item.id)}
-          >
-            <div className="flex items-start gap-3">
-              <button
-                className={`mt-1 p-1 rounded-lg transition-colors ${
-                  item.completed
-                    ? "text-accent bg-accent/10"
-                    : "text-muted-foreground bg-muted hover:text-foreground"
-                }`}
-              >
-                <CheckCircle className="w-5 h-5" />
-              </button>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-foreground">{item.label}</p>
-                  {item.required && (
-                    <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded font-medium">
-                      Required
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {item.description}
-                </p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Status Message */}
+      {/* Final Status */}
       <div
         className={`p-4 border rounded-lg flex items-start gap-3 ${
           isReady
@@ -241,7 +309,9 @@ export default function Submission() {
         )}
         <div>
           <p
-            className={`font-semibold ${isReady ? "text-accent" : "text-primary"}`}
+            className={`font-semibold ${
+              isReady ? "text-accent" : "text-primary"
+            }`}
           >
             {isReady
               ? "Ready to Submit!"
@@ -249,8 +319,10 @@ export default function Submission() {
           </p>
           <p className="text-sm text-muted-foreground mt-1">
             {isReady
-              ? "Your project is ready for submission. Click the button below to submit."
-              : `Complete ${requiredCount - completedRequired} more required item${requiredCount - completedRequired !== 1 ? "s" : ""} to proceed.`}
+              ? "Your project is ready for submission."
+              : `Complete ${requiredCount - completedRequired} more required item${
+                  requiredCount - completedRequired !== 1 ? "s" : ""
+                } to proceed.`}
           </p>
         </div>
       </div>

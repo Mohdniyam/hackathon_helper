@@ -24,6 +24,7 @@ export default function App() {
           <Route path="/submission" element={<Submission />} />
           <Route path="/showcase" element={<Showcase />} />
           <Route path="/projects" element={<ProjectLists />} />
+          <Route path="/submission/:projectId" element={<Submission />} />
         </Route>
       </Routes>
     </Router>
