@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, ExternalLink, Star, Search, Filter } from "lucide-react";
+import {
+  BookOpen,
+  ExternalLink,
+  Star,
+  Search,
+  Filter,
+  Plus,
+} from "lucide-react";
 
 interface Resource {
   id: number;
@@ -13,105 +20,126 @@ interface Resource {
 }
 
 export default function Resources() {
-  const [resources, setResources] = useState<Resource[]>([
-    {
-      id: 1,
-      name: "OpenAI API",
-      description: "GPT-4 and GPT-3.5 API for building AI applications",
-      url: "https://openai.com/api",
-      category: "AI/ML",
-      rating: 5,
-    },
-    {
-      id: 2,
-      name: "Firebase",
-      description: "Real-time database and backend services",
-      url: "https://firebase.google.com",
-      category: "Backend",
-      rating: 4,
-    },
-    {
-      id: 3,
-      name: "React Documentation",
-      description: "Official React docs and guides",
-      url: "https://react.dev",
-      category: "Frontend",
-      rating: 5,
-    },
-    {
-      id: 4,
-      name: "Tailwind CSS",
-      description: "Utility-first CSS framework",
-      url: "https://tailwindcss.com",
-      category: "Frontend",
-      rating: 5,
-    },
-    {
-      id: 5,
-      name: "MongoDB",
-      description: "NoSQL database for flexible data storage",
-      url: "https://www.mongodb.com",
-      category: "Database",
-      rating: 4,
-    },
-  ]);
-
-  useEffect(() => {
-    setResources([
-      {
-        id: 1,
-        name: "OpenAI API",
-        description: "GPT-4 and GPT-3.5 API for building AI applications",
-        url: "https://openai.com/api",
-        category: "AI/ML",
-        rating: 5,
-      },
-      {
-        id: 2,
-        name: "Firebase",
-        description: "Real-time database and backend services",
-        url: "https://firebase.google.com",
-        category: "Backend",
-        rating: 4,
-      },
-      {
-        id: 3,
-        name: "React Documentation",
-        description: "Official React docs and guides",
-        url: "https://react.dev",
-        category: "Frontend",
-        rating: 5,
-      },
-      {
-        id: 4,
-        name: "Tailwind CSS",
-        description: "Utility-first CSS framework",
-        url: "https://tailwindcss.com",
-        category: "Frontend",
-        rating: 5,
-      },
-      {
-        id: 5,
-        name: "MongoDB",
-        description: "NoSQL database for flexible data storage",
-        url: "https://www.mongodb.com",
-        category: "Database",
-        rating: 4,
-      },
-    ]);
-  }, []);
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const categories = [
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [categories, setCategories] = useState<string[]>([
     "All",
     "AI/ML",
     "Backend",
     "Frontend",
     "Database",
     "Design",
-  ];
+  ]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const [newResource, setNewResource] = useState<Resource>({
+    id: Date.now(),
+    name: "",
+    description: "",
+    url: "",
+    category: "",
+    rating: 0,
+  });
+
+  // Load resources and categories from localStorage on mount
+  useEffect(() => {
+    const savedResources = localStorage.getItem("customResources");
+    const savedCategories = localStorage.getItem("customCategories");
+
+    if (savedResources) {
+      setResources(JSON.parse(savedResources));
+    } else {
+      const defaultResources = [
+        {
+          id: 1,
+          name: "OpenAI API",
+          description: "GPT-4 and GPT-3.5 API for building AI applications",
+          url: "https://openai.com/api",
+          category: "AI/ML",
+          rating: 5,
+        },
+        {
+          id: 2,
+          name: "Firebase",
+          description: "Real-time database and backend services",
+          url: "https://firebase.google.com",
+          category: "Backend",
+          rating: 4,
+        },
+        {
+          id: 3,
+          name: "React Documentation",
+          description: "Official React docs and guides",
+          url: "https://react.dev",
+          category: "Frontend",
+          rating: 5,
+        },
+        {
+          id: 4,
+          name: "Tailwind CSS",
+          description: "Utility-first CSS framework",
+          url: "https://tailwindcss.com",
+          category: "Frontend",
+          rating: 5,
+        },
+        {
+          id: 5,
+          name: "MongoDB",
+          description: "NoSQL database for flexible data storage",
+          url: "https://www.mongodb.com",
+          category: "Database",
+          rating: 4,
+        },
+      ];
+      setResources(defaultResources);
+      localStorage.setItem("customResources", JSON.stringify(defaultResources));
+    }
+
+    if (savedCategories) {
+      setCategories(JSON.parse(savedCategories));
+    }
+  }, []);
+
+  // Add new resource logic
+  const handleAddResource = () => {
+    if (
+      !newResource.name ||
+      !newResource.description ||
+      !newResource.url ||
+      !newResource.category ||
+      !newResource.rating
+    ) {
+      alert("Please fill all fields before adding a resource.");
+      return;
+    }
+
+    const updatedResources = [...resources, { ...newResource, id: Date.now() }];
+    setResources(updatedResources);
+    localStorage.setItem("customResources", JSON.stringify(updatedResources));
+
+    // If new category is not already in the list, add it
+    if (
+      newResource.category.trim() &&
+      !categories.includes(newResource.category)
+    ) {
+      const updatedCategories = [...categories, newResource.category];
+      setCategories(updatedCategories);
+      localStorage.setItem(
+        "customCategories",
+        JSON.stringify(updatedCategories)
+      );
+    }
+
+    // Reset form
+    setNewResource({
+      id: Date.now(),
+      name: "",
+      description: "",
+      url: "",
+      category: "",
+      rating: 0,
+    });
+  };
 
   const filteredResources = resources.filter(
     (r) =>
@@ -167,6 +195,67 @@ export default function Resources() {
         </div>
       </div>
 
+      {/* Add Resource Form */}
+      <div className="border border-border p-4 rounded-lg space-y-3 bg-muted/20">
+        <h2 className="font-semibold text-lg flex items-center gap-2">
+          <Plus className="w-5 h-5 text-primary" /> Add New Resource
+        </h2>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <input
+            type="text"
+            placeholder="Name"
+            value={newResource.name}
+            onChange={(e) =>
+              setNewResource({ ...newResource, name: e.target.value })
+            }
+            className="p-2 rounded border bg-background text-foreground w-full"
+          />
+          <input
+            type="text"
+            placeholder="Category"
+            value={newResource.category}
+            onChange={(e) =>
+              setNewResource({ ...newResource, category: e.target.value })
+            }
+            className="p-2 rounded border bg-background text-foreground w-full"
+          />
+        </div>
+        <textarea
+          placeholder="Description"
+          value={newResource.description}
+          onChange={(e) =>
+            setNewResource({ ...newResource, description: e.target.value })
+          }
+          className="p-2 rounded border bg-background text-foreground w-full"
+        />
+        <input
+          type="text"
+          placeholder="URL"
+          value={newResource.url}
+          onChange={(e) =>
+            setNewResource({ ...newResource, url: e.target.value })
+          }
+          className="p-2 rounded border bg-background text-foreground w-full"
+        />
+        <input
+          type="number"
+          placeholder="Rating (1-5)"
+          value={newResource.rating}
+          onChange={(e) =>
+            setNewResource({ ...newResource, rating: Number(e.target.value) })
+          }
+          className="p-2 rounded border bg-background text-foreground w-full"
+          min={1}
+          max={5}
+        />
+        <button
+          onClick={handleAddResource}
+          className="w-full sm:w-auto px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition"
+        >
+          Add Resource
+        </button>
+      </div>
+
       {/* Resources Grid */}
       <div className="grid sm:grid-cols-2 gap-4">
         {filteredResources.map((resource) => (
@@ -202,7 +291,11 @@ export default function Resources() {
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-4 h-4 ${i < resource.rating ? "fill-accent text-accent" : "text-muted"}`}
+                  className={`w-4 h-4 ${
+                    i < resource.rating
+                      ? "fill-accent text-accent"
+                      : "text-muted"
+                  }`}
                 />
               ))}
             </div>
