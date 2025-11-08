@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BookOpen, ExternalLink, Star, Search, Filter } from "lucide-react";
 
 interface Resource {
@@ -55,6 +55,51 @@ export default function Resources() {
       rating: 4,
     },
   ]);
+
+  useEffect(() => {
+    setResources([
+      {
+        id: 1,
+        name: "OpenAI API",
+        description: "GPT-4 and GPT-3.5 API for building AI applications",
+        url: "https://openai.com/api",
+        category: "AI/ML",
+        rating: 5,
+      },
+      {
+        id: 2,
+        name: "Firebase",
+        description: "Real-time database and backend services",
+        url: "https://firebase.google.com",
+        category: "Backend",
+        rating: 4,
+      },
+      {
+        id: 3,
+        name: "React Documentation",
+        description: "Official React docs and guides",
+        url: "https://react.dev",
+        category: "Frontend",
+        rating: 5,
+      },
+      {
+        id: 4,
+        name: "Tailwind CSS",
+        description: "Utility-first CSS framework",
+        url: "https://tailwindcss.com",
+        category: "Frontend",
+        rating: 5,
+      },
+      {
+        id: 5,
+        name: "MongoDB",
+        description: "NoSQL database for flexible data storage",
+        url: "https://www.mongodb.com",
+        category: "Database",
+        rating: 4,
+      },
+    ]);
+  });
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TrendingUp, Users, Lightbulb, CheckSquare } from "lucide-react";
 import CardStat from "../components/shared/CardStat";
 import ActivityItem from "../components/shared/ActivityItem";
@@ -12,6 +12,14 @@ export default function Dashboard() {
     tasksCompleted: 8,
     tasksTotal: 15,
   });
+  useEffect(() => {
+    setStats({
+      teamMembers: 5,
+      totalIdeas: 9,
+      tasksCompleted: 10,
+      tasksTotal: 12,
+    });
+  }, []);
 
   const activities = [
     {
