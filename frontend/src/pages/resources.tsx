@@ -99,7 +99,7 @@ export default function Resources() {
         rating: 4,
       },
     ]);
-  });
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");

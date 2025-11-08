@@ -8,6 +8,7 @@ import Resources from "./pages/resources";
 import Tasks from "./pages/Tasks";
 import Submission from "./pages/Submission";
 import Showcase from "./pages/Showcase";
+import ProjectLists from "./pages/ProjectLists";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/submission" element={<Submission />} />
           <Route path="/showcase" element={<Showcase />} />
+          <Route path="/projects" element={<ProjectLists />} />
         </Route>
       </Routes>
     </Router>

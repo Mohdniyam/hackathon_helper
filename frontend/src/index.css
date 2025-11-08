@@ -1,17 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --background: 10 14% 8%;
-  --foreground: 0 0% 98%;
-  --primary: 280 85% 56%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 200 100% 50%;
+  /* 🌊 Sea Green & White Theme */
+  --background: 177 30% 97%; /* very light greenish white */
+  --foreground: 177 86% 14%; /* deep sea green text */
+
+  --primary: 177 86% 14%; /* main sea green */
+  --primary-foreground: 0 0% 100%; /* white text on sea green */
+
+  --secondary: 175 45% 40%; /* mid teal */
   --secondary-foreground: 0 0% 100%;
-  --accent: 20 90% 56%;
-  --accent-foreground: 0 0% 8%;
-  --muted: 210 11% 25%;
-  --muted-foreground: 215 16% 47%;
-  --border: 215 11% 20%;
+
+  --accent: 177 60% 30%; /* slightly darker teal for hover accents */
+  --accent-foreground: 0 0% 100%;
+
+  --muted: 175 20% 85%; /* soft background tone for cards, etc. */
+  --muted-foreground: 177 25% 25%;
+
+  --border: 177 15% 80%; /* light border tone */
   --radius: 0.5rem;
 }
 
@@ -30,32 +36,25 @@
   --radius-base: var(--radius);
 }
 
+/* Global styling */
 * {
-  @apply border-border;
+  @apply border-border transition-colors duration-200;
 }
 
 body {
   @apply bg-background text-foreground;
 }
 
-/* Smooth transitions */
-* {
-  @apply transition-colors duration-200;
-}
-
-/* Custom scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
   @apply w-2;
 }
-
 ::-webkit-scrollbar-track {
   @apply bg-background;
 }
-
 ::-webkit-scrollbar-thumb {
   @apply bg-muted rounded-full;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground;
+  @apply bg-accent;
 }

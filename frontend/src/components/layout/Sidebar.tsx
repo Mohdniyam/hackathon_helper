@@ -11,6 +11,7 @@ import {
   Send,
   Presentation,
   X,
+  Projector,
 } from "lucide-react";
 
 const menuItems = [
@@ -21,18 +22,50 @@ const menuItems = [
   { label: "Tasks", icon: CheckSquare, path: "/tasks" },
   { label: "Submission", icon: Send, path: "/submission" },
   { label: "Showcase", icon: Presentation, path: "/showcase" },
+  { label: "Projects", icon: Projector, path: "/projects" },
 ];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  const [projectDesc, setProjectDesc] = useState("");
+  const [projectCategory, setProjectCategory] = useState("");
+
   const location = useLocation();
+
+  // 🧠 Create project and save in localStorage
+  function handleCreateProject() {
+    if (!projectName.trim()) return;
+
+    const newProject = {
+      id: Date.now(),
+      name: projectName,
+      description: projectDesc,
+      category: projectCategory || "Uncategorized",
+    };
+
+    // Save to localStorage
+    const existing = JSON.parse(localStorage.getItem("projects") || "[]");
+    existing.push(newProject);
+    localStorage.setItem("projects", JSON.stringify(existing));
+
+    // 🔥 Tell ProjectLists to reload itself
+    window.dispatchEvent(new Event("projectsUpdated"));
+
+    // Clear form and close modal
+    setProjectName("");
+    setProjectDesc("");
+    setProjectCategory("");
+    setShowModal(false);
+  }
 
   return (
     <>
       {/* Mobile overlay */}
-      {!isOpen && (
+      {isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => setIsOpen(false)}
           className="lg:hidden fixed inset-0 z-30 bg-black/50"
         />
       )}
@@ -81,7 +114,9 @@ export default function Sidebar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    if (window.innerWidth < 1024) setIsOpen(false);
+                  }}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-primary/20 text-primary"
@@ -98,11 +133,83 @@ export default function Sidebar() {
 
         {/* Footer */}
         <div className="p-6 border-t border-border">
-          <button className="w-full px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+          <button
+            onClick={() => setShowModal(true)}
+            className="w-full px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
             + New Project
           </button>
         </div>
       </aside>
+
+      {/* Modal */}
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="bg-background p-6 rounded-lg shadow-lg w-96"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold mb-4">Create New Project</h2>
+
+            <input
+              type="text"
+              placeholder="Project Name"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              className="w-full border rounded p-2 mb-3"
+            />
+
+            <textarea
+              placeholder="Short Description (optional)"
+              rows={3}
+              value={projectDesc}
+              onChange={(e) => setProjectDesc(e.target.value)}
+              className="w-full border rounded p-2 mb-3"
+            />
+
+            <select
+              className="w-full border rounded p-2 mb-4"
+              value={projectCategory}
+              onChange={(e) => setProjectCategory(e.target.value)}
+            >
+              <option className="text-black" value="">
+                Select Category
+              </option>
+              <option className="text-black" value="Software">
+                Software
+              </option>
+              <option className="text-black" value="Hardware">
+                Hardware
+              </option>
+              <option className="text-black" value="Design">
+                Design
+              </option>
+              <option className="text-black" value="Research">
+                Research
+              </option>
+            </select>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-3 py-1 text-sm border rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateProject}
+                disabled={!projectName.trim()}
+                className="px-3 py-1 text-sm bg-primary text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
