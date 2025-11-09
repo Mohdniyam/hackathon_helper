@@ -9,12 +9,16 @@ import Tasks from "./pages/Tasks";
 import Submission from "./pages/Submission";
 import Showcase from "./pages/Showcase";
 import ProjectLists from "./pages/ProjectLists";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 export default function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/team" element={<Team />} />
