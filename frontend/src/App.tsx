@@ -11,6 +11,7 @@ import Showcase from "./pages/Showcase";
 import ProjectLists from "./pages/ProjectLists";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ProtectedRoute from "./auth/ProtectRoute"
 
 export default function App() {
   return (
@@ -19,7 +20,13 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route element={<Layout />}>
+        <Route
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/team" element={<Team />} />
           <Route path="/ideas" element={<Ideas />} />

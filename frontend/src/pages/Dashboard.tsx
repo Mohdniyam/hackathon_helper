@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { TrendingUp, Users, Lightbulb, CheckSquare } from "lucide-react";
 import CardStat from "../components/shared/CardStat";
 import ActivityItem from "../components/shared/ActivityItem";
+import { useAuth } from "../auth/AuthContext";
+import { Navigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -12,6 +14,15 @@ export default function Dashboard() {
     tasksCompleted: 8,
     tasksTotal: 15,
   });
+
+  const {user, login, logout} = useAuth();
+  // console.log("AuthContext", result)
+  
+   if(!user){
+    return <Navigate to="/login" replace />;
+   }
+
+
   useEffect(() => {
     setStats({
       teamMembers: 5,

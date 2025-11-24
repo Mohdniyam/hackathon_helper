@@ -13,6 +13,9 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+
+
 const Signup = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -20,6 +23,7 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    role: ""
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +44,8 @@ const Signup = () => {
       await createUserWithEmailAndPassword(
         auth,
         formData.email,
-        formData.password
+        formData.password,
+        formData.role
       );
       navigate("/dashboard");
     } catch (err: any) {
@@ -115,7 +120,34 @@ const Signup = () => {
                   onChange={handleChange}
                   required
                 />
+
+
               </div>
+
+
+              <div className="space-y-1">
+                <label htmlFor="userRole" className="text-sm font-medium">
+                  Role
+                </label>
+
+                <Select
+                  name="role"
+                  value={formData.role}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, role: value })
+                  }
+                >
+                  <SelectTrigger id="userRole">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="organisator">Organisator</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
 
               <Button type="submit" className="w-full">
                 Sign Up

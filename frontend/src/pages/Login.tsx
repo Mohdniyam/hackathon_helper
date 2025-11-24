@@ -12,11 +12,13 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { useAuth } from "../auth/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const {login} = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,7 +29,9 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      await login(formData.email, formData.password)
+      // await signInWithEmailAndPassword(auth, formData.email, formData.password);
+
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.message);
