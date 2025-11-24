@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Search, Bell, Menu } from "lucide-react";
+import UserProfileMenu from "@/pages/UserProfileMenu";
 
 export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -39,7 +40,10 @@ export default function Navbar() {
           <Bell className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
         </button>
-        <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg" />
+        {/* 🔥 User profile dropdown */}
+        <UserProfileMenu />
+
+        {/* <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg" /> */}
       </div>
     </nav>
   );

@@ -18,7 +18,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const {login} = useAuth();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,12 +29,15 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      await login(formData.email, formData.password)
+      console.log("Login start");
+      await login(formData.email, formData.password);
+      console.log("Login success, navigating");
       // await signInWithEmailAndPassword(auth, formData.email, formData.password);
 
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message);
+      console.error("Login failed:", err);
+      setError(err.message ?? "Login failed");
     }
   };
 

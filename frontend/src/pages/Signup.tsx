@@ -1,8 +1,9 @@
 // src/pages/Signup.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../firebaseConfig";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,17 +14,23 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 const Signup = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: ""
+    role: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,15 +46,33 @@ const Signup = () => {
       setError("Passwords do not match.");
       return;
     }
+    if (!formData.role) {
+      setError("Please select a role.");
+      return;
+    }
 
     try {
-      await createUserWithEmailAndPassword(
+      // Create user with email & password
+      const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email,
-        formData.password,
-        formData.role
+        formData.password
       );
-      navigate("/dashboard");
+
+      // Set the displayName on the Firebase user
+      await updateProfile(userCredential.user, {
+        displayName: formData.name,
+      });
+
+      // Save extra user data (including role) in Firestore
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        createdAt: serverTimestamp(),
+      });
+
+      navigate("/login");
     } catch (err: any) {
       setError(err.message);
     }
@@ -73,6 +98,21 @@ const Signup = () => {
           <CardContent>
             <form onSubmit={handleSignup} className="space-y-4">
               {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <div className="space-y-1">
+                <label htmlFor="name" className="text-sm font-medium">
+                  Name
+                </label>
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Your full name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
               <div className="space-y-1">
                 <label htmlFor="email" className="text-sm font-medium">
@@ -120,10 +160,7 @@ const Signup = () => {
                   onChange={handleChange}
                   required
                 />
-
-
               </div>
-
 
               <div className="space-y-1">
                 <label htmlFor="userRole" className="text-sm font-medium">
@@ -141,13 +178,12 @@ const Signup = () => {
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
 
-                  <SelectContent>
+                  <SelectContent className="bg-gray-200">
                     <SelectItem value="user">User</SelectItem>
                     <SelectItem value="organisator">Organisator</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
 
               <Button type="submit" className="w-full">
                 Sign Up
