@@ -5,9 +5,10 @@ import { TrendingUp, Users, Lightbulb, CheckSquare } from "lucide-react";
 import CardStat from "../components/shared/CardStat";
 import ActivityItem from "../components/shared/ActivityItem";
 import { useAuth } from "../auth/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     teamMembers: 3,
     totalIdeas: 12,
@@ -15,13 +16,12 @@ export default function Dashboard() {
     tasksTotal: 15,
   });
 
-  const {user, login, logout} = useAuth();
+  const { user, login, logout } = useAuth();
   // console.log("AuthContext", result)
-  
-   if(!user){
-    return <Navigate to="/login" replace />;
-   }
 
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   useEffect(() => {
     setStats({
@@ -101,7 +101,12 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 rounded-lg p-6">
-          <h3 className="font-semibold text-foreground mb-2">Next Milestone</h3>
+          <h3
+            className="font-semibold text-foreground mb-2"
+            onClick={() => navigate("/milestone")}
+          >
+            Next Milestone
+          </h3>
           <p className="text-sm text-muted-foreground mb-4">
             Project Submission
           </p>

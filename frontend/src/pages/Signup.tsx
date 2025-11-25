@@ -180,7 +180,7 @@ const Signup = () => {
 
                   <SelectContent className="bg-gray-200">
                     <SelectItem value="user">User</SelectItem>
-                    <SelectItem value="organisator">Organisator</SelectItem>
+                    <SelectItem value="Organizer">Organizer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

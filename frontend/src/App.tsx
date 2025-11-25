@@ -11,6 +11,7 @@ import Showcase from "./pages/Showcase";
 import ProjectLists from "./pages/ProjectLists";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import MilestonesPage from "./pages/MileStone";
 import ProtectedRoute from "./auth/ProtectRoute";
 import { AuthProvider } from "./auth/AuthContext";
 
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/submission" element={<Submission />} />
             <Route path="/showcase" element={<Showcase />} />
             <Route path="/projects" element={<ProjectLists />} />
+            <Route path="/milestone" element={<MilestonesPage />} />
             <Route path="/submission/:projectId" element={<Submission />} />
           </Route>
         </Routes>
