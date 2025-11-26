@@ -12,7 +12,7 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            HackHelper
+            Hackathon Helper
           </h1>
           <div className="flex gap-2">
             <button
@@ -27,12 +27,12 @@ export default function Landing() {
             >
               Sign Up
             </button>
-            <button
+            {/* <button
               onClick={() => navigate("/dashboard")}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
               Enter App
-            </button>
+            </button> */}
           </div>
         </div>
       </nav>
@@ -129,11 +129,11 @@ export default function Landing() {
             Ready to win your hackathon?
           </p>
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/login")}
             className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
           >
             <Rocket className="w-4 h-4" />
-            Launch HackHelper
+            Launch Hackathon Helper
           </button>
         </div>
       </section>

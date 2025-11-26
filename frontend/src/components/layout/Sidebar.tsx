@@ -25,8 +25,8 @@ const menuItems = [
   { label: "Projects", icon: Projector, path: "/projects" },
 ];
 
-export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+export default function Sidebar({ isOpen, setIsOpen }) {
+  // const [isOpen, setIsOpen] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
   // ✅ Form fields
@@ -87,7 +87,7 @@ export default function Sidebar() {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            HackHelper
+            Hackathon Helper
           </h1>
           <button
             onClick={() => setIsOpen(false)}

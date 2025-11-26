@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { Search, Bell, Menu } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({ setIsSidebarOpen }) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <nav className="flex items-center justify-between px-6 py-4 border-b border-border bg-background sticky top-0 z-10">
       <div className="flex items-center flex-1 gap-4">
-        <button className="lg:hidden text-muted-foreground hover:text-foreground">
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="lg:hidden text-muted-foreground hover:text-foreground"
+        >
           <Menu className="w-5 h-5" />
         </button>
 
