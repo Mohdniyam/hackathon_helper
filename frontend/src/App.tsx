@@ -39,7 +39,7 @@ export default function App() {
             <Route path="/submission" element={<Submission />} />
             <Route path="/showcase" element={<Showcase />} />
             <Route path="/projects" element={<ProjectLists />} />
-            <Route path="/milestone" element={<MilestonesPage />} />
+            <Route path="/milestones" element={<MilestonesPage />} />
             <Route path="/submission/:projectId" element={<Submission />} />
           </Route>
         </Routes>

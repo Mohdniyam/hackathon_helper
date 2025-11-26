@@ -1,96 +1,141 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2, GripVertical, Clock } from "lucide-react";
+import { db } from "@/firebaseConfig";
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  serverTimestamp,
+  query,
+  orderBy,
+} from "firebase/firestore";
+import { useAuth } from "@/auth/AuthContext";
+
+type TaskStatus = "todo" | "in-progress" | "done";
+type TaskPriority = "low" | "medium" | "high";
 
 interface Task {
-  id: number;
+  id: string;
   title: string;
-  status: "todo" | "in-progress" | "done";
-  priority: "low" | "medium" | "high";
+  status: TaskStatus;
+  priority: TaskPriority;
   assignee: string;
-  dueDate: string;
+  assigneeId: string;
+  dueDate: string; // "YYYY-MM-DD"
 }
 
-export default function Tasks() {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 1,
-      title: "Design login page",
-      status: "done",
-      priority: "high",
-      assignee: "Jordan",
-      dueDate: "2025-01-10",
-    },
-    {
-      id: 2,
-      title: "Backend API setup",
-      status: "in-progress",
-      priority: "high",
-      assignee: "Alex",
-      dueDate: "2025-01-11",
-    },
-    {
-      id: 3,
-      title: "Database schema",
-      status: "in-progress",
-      priority: "medium",
-      assignee: "Sam",
-      dueDate: "2025-01-12",
-    },
-    {
-      id: 4,
-      title: "Frontend components",
-      status: "todo",
-      priority: "medium",
-      assignee: "Jordan",
-      dueDate: "2025-01-13",
-    },
-  ]);
+const PROJECT_ID = "default-project"; // later you can get this from route or team context
 
+export default function Tasks() {
+  const { profile } = useAuth();
+
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const statusColors = {
+  const statusColors: Record<TaskStatus, string> = {
     todo: "bg-muted/50 text-muted-foreground",
     "in-progress": "bg-secondary/10 text-secondary",
     done: "bg-accent/10 text-accent",
   };
 
-  const priorityColors = {
+  const priorityColors: Record<TaskPriority, string> = {
     low: "border-l-4 border-secondary/50",
     medium: "border-l-4 border-accent/50",
     high: "border-l-4 border-primary/50",
   };
 
-  const handleAddTask = () => {
-    if (newTask.trim()) {
-      setTasks([
-        ...tasks,
-        {
-          id: Date.now(),
-          title: newTask,
-          status: "todo",
-          priority: "medium",
-          assignee: "You",
-          dueDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        },
-      ]);
+  // 🔄 Subscribe to tasks for this project
+  useEffect(() => {
+    const tasksRef = collection(db, "projects", PROJECT_ID, "tasks");
+    const q = query(tasksRef, orderBy("createdAt", "asc"));
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data: Task[] = snapshot.docs.map((d) => {
+          const docData = d.data() as any;
+          return {
+            id: d.id,
+            title: docData.title,
+            status: docData.status,
+            priority: docData.priority ?? "medium",
+            assignee: docData.assigneeName ?? "Unknown",
+            assigneeId: docData.assigneeId ?? "",
+            dueDate: docData.dueDate ?? "",
+          };
+        });
+        setTasks(data);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error subscribing to tasks:", error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleAddTask = async () => {
+    if (!newTask.trim()) return;
+
+    const assigneeName = profile?.name ?? profile?.email ?? "Anonymous Member";
+    const assigneeId = profile?.uid ?? "unknown";
+
+    try {
+      const tasksRef = collection(db, "projects", PROJECT_ID, "tasks");
+      const dueDate = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
+
+      await addDoc(tasksRef, {
+        title: newTask.trim(),
+        status: "todo",
+        priority: "medium",
+        assigneeId,
+        assigneeName,
+        dueDate,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
       setNewTask("");
       setShowForm(false);
+    } catch (error) {
+      console.error("Error adding task:", error);
     }
   };
 
-  const moveTask = (id: number, newStatus: Task["status"]) => {
-    setTasks(tasks.map((t) => (t.id === id ? { ...t, status: newStatus } : t)));
+  const moveTask = async (id: string, newStatus: TaskStatus) => {
+    try {
+      const taskRef = doc(db, "projects", PROJECT_ID, "tasks", id);
+      await updateDoc(taskRef, {
+        status: newStatus,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error updating task status:", error);
+    }
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter((t) => t.id !== id));
+  const deleteTask = async (id: string) => {
+    try {
+      const taskRef = doc(db, "projects", PROJECT_ID, "tasks", id);
+      await deleteDoc(taskRef);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
   const columns = ["todo", "in-progress", "done"] as const;
-  const columnTitles = {
+  const columnTitles: Record<TaskStatus, string> = {
     todo: "To Do",
     "in-progress": "In Progress",
     done: "Done",
@@ -138,6 +183,13 @@ export default function Tasks() {
               Cancel
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading && (
+        <div className="text-sm text-muted-foreground">
+          Loading tasks for your team...
         </div>
       )}
 
